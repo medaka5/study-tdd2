@@ -23,6 +23,9 @@ struct Time_t {
 };
 typedef struct Time_t Time;
 
+typedef void (*WakeupCallback)(void);
 extern void TimeService_GetTime(Time *time);
+extern void TimeService_SetPeriodicAlarmInSeconds(int seconds, WakeupCallback);
+extern void TimeService_CancelPeriodicAlarmInSeconds(int seconds, WakeupCallback);
 
 #endif // TIME_SERVICE_H

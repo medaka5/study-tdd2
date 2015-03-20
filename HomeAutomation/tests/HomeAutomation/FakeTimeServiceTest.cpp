@@ -4,6 +4,7 @@ extern "C" {
 }
 #include "CppUTest/TestHarness.h"
 
+
 TEST_GROUP(FakeTimeService)
 {
     void setup()
@@ -30,3 +31,5 @@ TEST(FakeTimeService, Set) {
     LONGS_EQUAL(42, time.minuteOfDay);
     LONGS_EQUAL(SATURDAY, time.dayOfWeek);
 }
+
+
