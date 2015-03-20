@@ -37,7 +37,7 @@ INCLUDE_DIRS =\
   tests/HomeAutomation
 
 CPPUTEST_WARNINGFLAGS = -Wall -Werror -Wswitch-default 
-CPPUTEST_WARNINGFLAGS += -Wconversion -Wswitch-enum 
+CPPUTEST_WARNINGFLAGS += -Wconversion -Wswitch-enum -Wno-old-style-cast
 
 include $(CPPUTEST_HOME)/build/MakefileWorker.mk
 

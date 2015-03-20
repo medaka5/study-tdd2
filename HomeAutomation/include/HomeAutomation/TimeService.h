@@ -2,7 +2,7 @@
 #ifndef TIME_SERVICE_H
 #define TIME_SERVICE_H
 enum {
-    TIME_UNKNOWN = -1,
+    TIME_UNKNOWN = -1
 };
 enum {
     NONE = -1,
