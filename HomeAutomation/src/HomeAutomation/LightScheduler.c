@@ -75,6 +75,10 @@ void LightScheduler_Wakeup(void) {
 }
 static int scheduleEvent(int id, int dayOfWeek, int minuteOfDay, int event) {
 
+	if(id < 0 || id > 31) {
+		return LS_OUT_OF_BOUNDS;
+	}
+
 	int i;
     for(i = 0; i < MAX_EVENT; i++) {
     	if(scheduledEvents[i].id == UNUSED) {
@@ -96,4 +100,15 @@ int LightScheduler_ScheduleTurnOn(int id, int day, int minuteOfDay) {
 }
 int LightScheduler_ScheduleTurnOff(int id, int day, int minuteOfDay) {
     return scheduleEvent(id, day, minuteOfDay, TURN_OFF);
+}
+void LightScheduler_ScheduleRemove(int id, int day, int minuteOfDay) {
+	int i;
+    for(i = 0; i < MAX_EVENT; i++) {
+    	if(scheduledEvents[i].id == id &&
+    	  scheduledEvents[i].dayOfWeek == day &&
+		  scheduledEvents[i].minuteOfDay == minuteOfDay) {
+    		scheduledEvents[i].id = UNUSED;
+    		break;
+    	}
+    }
 }

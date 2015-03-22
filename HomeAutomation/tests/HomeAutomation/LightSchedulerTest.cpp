@@ -134,6 +134,37 @@ TEST(LightScheduler, RejectsTooManyEvents)
 	}
 	LONGS_EQUAL(LS_TOO_MANY_EVENTS, LightScheduler_ScheduleTurnOn(6, MONDAY, 600+129));
 }
+TEST(LightScheduler, RemoveRecylesScheduleSlot)
+{
+	for(int i = 0; i < 128; i++) {
+		LONGS_EQUAL(LS_OK, LightScheduler_ScheduleTurnOn(6, MONDAY, 600+i));
+	}
+	LightScheduler_ScheduleRemove(6, MONDAY, 600);
+	LONGS_EQUAL(LS_OK, LightScheduler_ScheduleTurnOn(18, MONDAY, 1000));
+}
+TEST(LightScheduler, RemoveMultipleScheduledEvent)
+{
+    LightScheduler_ScheduleTurnOn(6, MONDAY, 1200);
+    LightScheduler_ScheduleTurnOn(7, MONDAY, 1200);
+    LightScheduler_ScheduleRemove(6, MONDAY, 1200);
+    setTimeTo(MONDAY, 1200);
+
+    LightScheduler_Wakeup();
+    checkLightState(6, LIGHT_STATE_UNKNOWN);
+    checkLightState(7, LIGHT_ON);
+}
+TEST(LightScheduler, AcceptsValidLightIds)
+{
+	LONGS_EQUAL(LS_OK, LightScheduler_ScheduleTurnOn(0, MONDAY, 1000));
+	LONGS_EQUAL(LS_OK, LightScheduler_ScheduleTurnOn(15, MONDAY, 1000));
+	LONGS_EQUAL(LS_OK, LightScheduler_ScheduleTurnOn(31, MONDAY, 1000));
+}
+
+TEST(LightScheduler, RejectsValidLightIds)
+{
+	LONGS_EQUAL(LS_OUT_OF_BOUNDS, LightScheduler_ScheduleTurnOn(-1, MONDAY, 1000));
+	LONGS_EQUAL(LS_OUT_OF_BOUNDS, LightScheduler_ScheduleTurnOn(32, MONDAY, 1000));
+}
 
 /***************************************************/
 TEST_GROUP(LightSchedulerInitAndCleanup)
