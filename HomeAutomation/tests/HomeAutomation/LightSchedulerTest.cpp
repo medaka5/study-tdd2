@@ -25,8 +25,12 @@ TEST_GROUP(LightScheduler)
         FakeTimeService_SetMinute(minuteOfDay);
     }
     void checkLightState(int id, int level) {
-        LONGS_EQUAL(id, LightControllerSpy_GetLastId());
-        LONGS_EQUAL(level, LightControllerSpy_GetLastState());
+    	if (id == LIGHT_ID_UNKNOWN) {
+	        LONGS_EQUAL(id, LightControllerSpy_GetLastId());
+	        LONGS_EQUAL(level, LightControllerSpy_GetLastState());
+    	} else {
+	        LONGS_EQUAL(level, LightControllerSpy_GetLightState(id));
+    	}
     }
 };
 
@@ -89,6 +93,13 @@ TEST(LightScheduler, scheduleWeekdayAndItsTuesday)
     LightScheduler_Wakeup();
     checkLightState(4, LIGHT_ON);
 }
+TEST(LightScheduler, scheduleWeekdayAndItsSaturday)
+{
+    LightScheduler_ScheduleTurnOn(4, WEEKDAY, 1200);
+    setTimeTo(SATURDAY, 1200);
+    LightScheduler_Wakeup();
+    checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
+}
 
 TEST(LightScheduler, scheduleWeekendAndItsFriday)
 {
@@ -97,7 +108,16 @@ TEST(LightScheduler, scheduleWeekendAndItsFriday)
     LightScheduler_Wakeup();
     checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
 }
+TEST(LightScheduler, scheduleWeekendAndItsSaturday)
+{
+    LightScheduler_ScheduleTurnOn(2, WEEKEND, 1200);
+    setTimeTo(SATURDAY, 1200);
+    LightScheduler_Wakeup();
+    checkLightState(2, LIGHT_ON);
+}
 
+
+/***************************************************/
 TEST_GROUP(LightSchedulerInitAndCleanup)
 {
 };
@@ -109,6 +129,8 @@ TEST(LightSchedulerInitAndCleanup, CreateStartsOneMinuteAlarm)
     LONGS_EQUAL(60, FakeTimeService_GetAlarmPeriod());
     LightScheduler_Destroy();
 }
+
+
 TEST(LightSchedulerInitAndCleanup, DestroyCancelsOneMinuteAlarm)
 {
     LightScheduler_Create();

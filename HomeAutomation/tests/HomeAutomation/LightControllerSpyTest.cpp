@@ -22,6 +22,9 @@ TEST(LightControllerSpy, Create)
 {
     LONGS_EQUAL(LIGHT_ID_UNKNOWN, LightControllerSpy_GetLastId());
     LONGS_EQUAL(LIGHT_STATE_UNKNOWN, LightControllerSpy_GetLastState());
+    for(int i = 0; i < LIGHTCONTROLLER_MAX_ID; i++) {
+    	LONGS_EQUAL(LIGHT_STATE_UNKNOWN, LightControllerSpy_GetLightState(i));
+    }
 }
 TEST(LightControllerSpy, RememberTheLastLightIdControlled)
 {
@@ -36,4 +39,11 @@ TEST(LightControllerSpy, RememberTheLastLightIdControlledOff)
     LONGS_EQUAL(LIGHT_OFF, LightControllerSpy_GetLastState());
 }
 
+TEST(LightControllerSpy, RememberAllLightStatus)
+{
+	LightController_On(0);
+	LightController_Off(31);
+	LONGS_EQUAL(LIGHT_ON, LightControllerSpy_GetLightState(0));
+	LONGS_EQUAL(LIGHT_OFF, LightControllerSpy_GetLightState(31));
+}
 
