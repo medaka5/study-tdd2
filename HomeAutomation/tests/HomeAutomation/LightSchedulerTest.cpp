@@ -107,6 +107,7 @@ TEST(LightScheduler, scheduleWeekendAndItsFriday)
     setTimeTo(FRIDAY, 1200);
     LightScheduler_Wakeup();
     checkLightState(LIGHT_ID_UNKNOWN, LIGHT_STATE_UNKNOWN);
+
 }
 TEST(LightScheduler, scheduleWeekendAndItsSaturday)
 {
@@ -116,6 +117,23 @@ TEST(LightScheduler, scheduleWeekendAndItsSaturday)
     checkLightState(2, LIGHT_ON);
 }
 
+
+TEST(LightScheduler, ScheduleTwoEventAtTheSameTime)
+{
+    LightScheduler_ScheduleTurnOn(3, SUNDAY, 1200);
+    LightScheduler_ScheduleTurnOn(12, SUNDAY, 1200);
+    setTimeTo(SUNDAY, 1200);
+    LightScheduler_Wakeup();
+    checkLightState(3, LIGHT_ON);
+    checkLightState(12, LIGHT_ON);
+}
+TEST(LightScheduler, RejectsTooManyEvents)
+{
+	for(int i = 0; i < 128; i++) {
+		LONGS_EQUAL(LS_OK, LightScheduler_ScheduleTurnOn(6, MONDAY, 600+i));
+	}
+	LONGS_EQUAL(LS_TOO_MANY_EVENTS, LightScheduler_ScheduleTurnOn(6, MONDAY, 600+129));
+}
 
 /***************************************************/
 TEST_GROUP(LightSchedulerInitAndCleanup)

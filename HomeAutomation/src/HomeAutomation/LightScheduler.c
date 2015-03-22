@@ -1,4 +1,5 @@
 #include <stdbool.h>
+
 #include "LightScheduler.h"
 #include "LightController.h"
 #include "TimeService.h"
@@ -16,12 +17,14 @@ enum {
     TURN_ON = 1,
     TURN_OFF = 2,
 };
-static ScheduledLightEvent scheduledEvent;
+static ScheduledLightEvent scheduledEvents[MAX_EVENT];
 
 void LightScheduler_Create(void) {
-    scheduledEvent.id = UNUSED;
-
+    for(int i = 0; i < MAX_EVENT; i++) {
+    	scheduledEvents[i].id = UNUSED;
+    }
     TimeService_SetPeriodicAlarmInSeconds(60, LightScheduler_Wakeup);
+
 }
 void LightScheduler_Destroy(void) {
     TimeService_CancelPeriodicAlarmInSeconds(60, LightScheduler_Wakeup);
@@ -36,6 +39,10 @@ static void operateLight(ScheduledLightEvent *lightEvent) {
 }
 static int DoesLightRespondToday(ScheduledLightEvent *lightEvent, Time *time) {
     int today = time->dayOfWeek;
+
+    if(lightEvent->id == UNUSED) {
+    	return false;
+    }
     if(lightEvent->dayOfWeek == EVERYDAY) {
         return true;
     }
@@ -62,17 +69,31 @@ void LightScheduler_Wakeup(void) {
     Time time;
     TimeService_GetTime(&time);
 
-    processEventDueNow(&time, &scheduledEvent);
+    for(int i = 0; i < MAX_EVENT; i++) {
+	    processEventDueNow(&time, &scheduledEvents[i]);
+    }
 }
-static void scheduleEvent(int id, int dayOfWeek, int minuteOfDay, int event) {
-    scheduledEvent.id = id;
-    scheduledEvent.dayOfWeek = dayOfWeek;
-    scheduledEvent.minuteOfDay = minuteOfDay;
-    scheduledEvent.event = event;
+static int scheduleEvent(int id, int dayOfWeek, int minuteOfDay, int event) {
+
+	int i;
+    for(i = 0; i < MAX_EVENT; i++) {
+    	if(scheduledEvents[i].id == UNUSED) {
+    		scheduledEvents[i].id = id;
+    		scheduledEvents[i].dayOfWeek = dayOfWeek;
+    		scheduledEvents[i].minuteOfDay = minuteOfDay;
+    		scheduledEvents[i].event = event;
+    		break;
+    	}
+    }
+    if(i >= MAX_EVENT) {
+    	return LS_TOO_MANY_EVENTS;
+    } else {
+    	return LS_OK;
+    }
 }
-void LightScheduler_ScheduleTurnOn(int id, int day, int minuteOfDay) {
-    scheduleEvent(id, day, minuteOfDay, TURN_ON);
+int LightScheduler_ScheduleTurnOn(int id, int day, int minuteOfDay) {
+    return scheduleEvent(id, day, minuteOfDay, TURN_ON);
 }
-void LightScheduler_ScheduleTurnOff(int id, int day, int minuteOfDay) {
-    scheduleEvent(id, day, minuteOfDay, TURN_OFF);
+int LightScheduler_ScheduleTurnOff(int id, int day, int minuteOfDay) {
+    return scheduleEvent(id, day, minuteOfDay, TURN_OFF);
 }
