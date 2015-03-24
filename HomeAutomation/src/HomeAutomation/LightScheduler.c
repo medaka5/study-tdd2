@@ -3,6 +3,7 @@
 #include "LightScheduler.h"
 #include "LightController.h"
 #include "TimeService.h"
+#include "RandomMinute.h"
 
 typedef struct 
 {
@@ -24,6 +25,7 @@ void LightScheduler_Create(void) {
     	scheduledEvents[i].id = UNUSED;
     }
     TimeService_SetPeriodicAlarmInSeconds(60, LightScheduler_Wakeup);
+    RandomMinute_Create(30);
 
 }
 void LightScheduler_Destroy(void) {
@@ -112,3 +114,13 @@ void LightScheduler_ScheduleRemove(int id, int day, int minuteOfDay) {
     	}
     }
 }
+void LightScheduler_Randomize(int id, int day, int minuteOfDay) {
+	int i;
+    for(i = 0; i < MAX_EVENT; i++) {
+    	if(scheduledEvents[i].id == id) {
+    	  scheduledEvents[i].dayOfWeek = day;
+		  scheduledEvents[i].minuteOfDay = minuteOfDay + RandomMinute_Get();
+    	}
+    }
+}
+
