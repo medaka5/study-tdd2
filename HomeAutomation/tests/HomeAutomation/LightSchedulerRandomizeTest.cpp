@@ -14,8 +14,7 @@ TEST_GROUP(LightSchedulerRandomize)
 	void setup(){
 		LightController_Create();
 		LightScheduler_Create();
-		savedRandomMinute_Get = RandomMinute_Get;
-		RandomMinute_Get = FakeRandomMinute_Get;
+		UT_PTR_SET(RandomMinute_Get, FakeRandomMinute_Get);
 	}
 	void teardown() {
         LightController_Destroy();
